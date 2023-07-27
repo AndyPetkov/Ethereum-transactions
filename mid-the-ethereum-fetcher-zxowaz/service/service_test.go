@@ -17,7 +17,6 @@ var _ = Describe("service-transaction", func() {
 		testTransaction        TransactionService
 		mockTest               *repomocks.TransactionRepo
 		expectedTransactions   models.Transactions
-		//emptyTransactionTest models.Transactions
 	)
 	BeforeEach(func() {
 		transactionsTest := []models.Transaction{
@@ -46,7 +45,6 @@ var _ = Describe("service-transaction", func() {
 				Value:             "50000000000000000",
 			},
 		}
-		//emptyTransactionTest = models.Transactions{Transactions: nil}
 		actualTransactionsTest = models.Transactions{
 			Transactions: transactionsTest,
 		}
