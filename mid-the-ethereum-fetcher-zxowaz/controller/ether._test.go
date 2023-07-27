@@ -69,7 +69,7 @@ var _ = Describe("service-transaction", func() {
 
 	Describe("GetAll", func() {
 
-		FIt("should return all transactions and nil when all passed parameters are valid", func() {
+		It("should return all transactions and nil when all passed parameters are valid", func() {
 			mockTest.On("GetAll").Return(actualTransactionsTest, nil)
 			response := GetResponse("GET", "/lime/all", nil, http.HandlerFunc(testTransaction.GetAll))
 			json.NewDecoder(io.Reader(response.Body)).Decode(&expectedTransactions)
@@ -77,7 +77,7 @@ var _ = Describe("service-transaction", func() {
 			Expect(expectedTransactions).To(Equal(actualTransactionsTest))
 		},
 		)
-		FIt("should return nil and error when wrong parameters are passed", func() {
+		It("should return nil and error when wrong parameters are passed", func() {
 			mockTest.On("GetAll").Return(models.Transactions{}, errTest)
 			response := GetResponse("GET", "/lime/all", nil, http.HandlerFunc(testTransaction.GetAll))
 			json.NewDecoder(io.Reader(response.Body)).Decode(&expectedTransactions)
@@ -89,7 +89,7 @@ var _ = Describe("service-transaction", func() {
 
 	Describe("GetByRlphex", func() {
 
-		FIt("should return all transactions and nil when all passed parameters are valid", func() {
+		It("should return all transactions and nil when all passed parameters are valid", func() {
 			mockTest.On("GetByRlphex", "").Return(actualTransactionsTest, nil)
 			response := GetResponse("GET", "/lime/eth", nil, http.HandlerFunc(testTransaction.GetByRlphex))
 			json.NewDecoder(io.Reader(response.Body)).Decode(&expectedTransactions)
@@ -97,7 +97,7 @@ var _ = Describe("service-transaction", func() {
 			Expect(expectedTransactions).To(Equal(actualTransactionsTest))
 		},
 		)
-		FIt("should return nil and error when wrong parameters are passed", func() {
+		It("should return nil and error when wrong parameters are passed", func() {
 			mockTest.On("GetByRlphex", "").Return(models.Transactions{}, errTest)
 			response := GetResponse("GET", "/lime/eth", nil, http.HandlerFunc(testTransaction.GetByRlphex))
 			json.NewDecoder(io.Reader(response.Body)).Decode(&expectedTransactions)
