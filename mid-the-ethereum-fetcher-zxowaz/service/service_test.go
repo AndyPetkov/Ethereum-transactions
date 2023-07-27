@@ -1,33 +1,23 @@
 package service
 
 import (
-	"encoding/json"
 	"errors"
-	"io"
 	repomocks "mid-the-ethereum-fetcher-zxowaz/mocks"
 	"mid-the-ethereum-fetcher-zxowaz/models"
-	"net/http"
-	"net/http/httptest"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
-func GetResponse(method string, url string, body io.Reader, handler http.HandlerFunc) *httptest.ResponseRecorder {
-	req, _ := http.NewRequest(method, url, body)
-	response := httptest.NewRecorder()
-	handler.ServeHTTP(response, req)
-	return response
-}
-
 var _ = Describe("service-transaction", func() {
 	var (
 		actualTransactionsTest models.Transactions
 		errTest                error
+		errRlphexTest          error
 		testTransaction        TransactionService
 		mockTest               *repomocks.TransactionRepo
 		expectedTransactions   models.Transactions
-		emptyTransactionTest   models.Transactions
+		//emptyTransactionTest models.Transactions
 	)
 	BeforeEach(func() {
 		transactionsTest := []models.Transaction{
@@ -56,12 +46,13 @@ var _ = Describe("service-transaction", func() {
 				Value:             "50000000000000000",
 			},
 		}
-		emptyTransactionTest = models.Transactions{Transactions: nil}
+		//emptyTransactionTest = models.Transactions{Transactions: nil}
 		actualTransactionsTest = models.Transactions{
 			Transactions: transactionsTest,
 		}
 		expectedTransactions = models.Transactions{}
 		errTest = errors.New("")
+		errRlphexTest = errors.New("you are missing rlphex parameter.")
 		mockTest = &repomocks.TransactionRepo{}
 		testTransaction = NewServiceTransaction()
 		testTransaction.ConfigureRepoTransaction(mockTest)
@@ -71,18 +62,16 @@ var _ = Describe("service-transaction", func() {
 
 		It("should return all transactions and nil when all passed parameters are valid", func() {
 			mockTest.On("GetAll").Return(actualTransactionsTest, nil)
-			response := GetResponse("GET", "/lime/all", nil, http.HandlerFunc(testTransaction.GetAll))
-			json.NewDecoder(io.Reader(response.Body)).Decode(&expectedTransactions)
-			Expect(response.Code).To(Equal(http.StatusOK))
-			Expect(expectedTransactions).To(Equal(actualTransactionsTest))
+			expectedResult, expectedErr := testTransaction.GetAll()
+			Expect(expectedErr).To(BeNil())
+			Expect(expectedResult).To(Equal(actualTransactionsTest))
 		},
 		)
-		It("should return nil and error when wrong parameters are passed", func() {
-			mockTest.On("GetAll").Return(models.Transactions{}, errTest)
-			response := GetResponse("GET", "/lime/all", nil, http.HandlerFunc(testTransaction.GetAll))
-			json.NewDecoder(io.Reader(response.Body)).Decode(&expectedTransactions)
-			Expect(response.Code).To(Equal(http.StatusBadRequest))
-			Expect(expectedTransactions).To(Equal(emptyTransactionTest))
+		It("should return nil and error", func() {
+			mockTest.On("GetAll").Return(expectedTransactions, errTest)
+			expectedResult, expectedErr := testTransaction.GetAll()
+			Expect(expectedErr).ToNot(BeNil())
+			Expect(expectedResult).To(BeNil())
 		},
 		)
 	})
@@ -90,19 +79,17 @@ var _ = Describe("service-transaction", func() {
 	Describe("GetByRlphex", func() {
 
 		It("should return all transactions and nil when all passed parameters are valid", func() {
-			mockTest.On("GetByRlphex", "").Return(actualTransactionsTest, nil)
-			response := GetResponse("GET", "/lime/eth", nil, http.HandlerFunc(testTransaction.GetByRlphex))
-			json.NewDecoder(io.Reader(response.Body)).Decode(&expectedTransactions)
-			Expect(response.Code).To(Equal(http.StatusOK))
-			Expect(expectedTransactions).To(Equal(actualTransactionsTest))
+			mockTest.On("GetByRlphex", "f90110b8423078396232").Return(actualTransactionsTest, nil)
+			expectedResult, expectedErr := testTransaction.GetByRlphex("f90110b8423078396232")
+			Expect(expectedErr).To(BeNil())
+			Expect(expectedResult).To(Equal(actualTransactionsTest))
 		},
 		)
 		It("should return nil and error when wrong parameters are passed", func() {
-			mockTest.On("GetByRlphex", "").Return(models.Transactions{}, errTest)
-			response := GetResponse("GET", "/lime/eth", nil, http.HandlerFunc(testTransaction.GetByRlphex))
-			json.NewDecoder(io.Reader(response.Body)).Decode(&expectedTransactions)
-			Expect(response.Code).To(Equal(http.StatusBadRequest))
-			Expect(expectedTransactions).To(Equal(emptyTransactionTest))
+			mockTest.On("GetByRlphex").Return(expectedTransactions, errTest)
+			expectedResult, expectedErr := testTransaction.GetByRlphex(" ")
+			Expect(expectedErr).To(Equal(errRlphexTest))
+			Expect(expectedResult).To(BeNil())
 		},
 		)
 	})

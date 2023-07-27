@@ -2,7 +2,6 @@ package controller
 
 import (
 	"fmt"
-	"mid-the-ethereum-fetcher-zxowaz/service"
 	"net/http"
 	"os"
 
@@ -14,7 +13,7 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleRequests() error {
-	transaction := service.NewServiceTransaction()
+	transaction := NewControllerTransaction()
 	myRouter := mux.NewRouter().StrictSlash(true)
 	myRouter.Use(commonMiddleware)
 	myRouter.HandleFunc("/", homePage)
